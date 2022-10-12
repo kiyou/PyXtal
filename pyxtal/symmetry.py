@@ -3048,7 +3048,7 @@ def site_symm(point, gen_pos, tol=1e-3, lattice=np.eye(3), PBC=None):
             symmetry.append(el)
     return symmetry
 
-def check_wyckoff_position(points, group, tol=1e-3):
+def check_wyckoff_position(points, lattice, group, tol=1e-3):
     """
     Given a list of points, returns a single index of a matching Wyckoff
     position in the space group. Checks the site symmetry of each supplied
@@ -3058,6 +3058,7 @@ def check_wyckoff_position(points, group, tol=1e-3):
 
     Args:
         points: a list of 3d coordinates or SymmOps to check
+        lattice: a 3x3 matrix describing a unit cell's lattice vectors
         group: a Group object
         tol: the max distance between equivalent points
 
@@ -3091,7 +3092,7 @@ def check_wyckoff_position(points, group, tol=1e-3):
                 continue
             # Calculate distances between original and generated points
             pw = np.array([op.operate(p) for op in wp])
-            dw = distance_matrix(points, pw, None, PBC=PBC, metric="sqeuclidean")
+            dw = distance_matrix(points, pw, lattice, PBC=PBC, metric="sqeuclidean")
 
             # Check each row for a zero
             for row in dw:
@@ -3111,7 +3112,7 @@ def check_wyckoff_position(points, group, tol=1e-3):
 
             # Calculate distance between original and generated points
             ps = np.array([op.operate(p) for op in w_symm_all[i][0]])
-            ds = distance_matrix([p], ps, None, PBC=PBC, metric="sqeuclidean")
+            ds = distance_matrix([p], ps, lattice, PBC=PBC, metric="sqeuclidean")
             # Check whether any generated points are too far away
             num = (ds > t).sum()
             if num > 0:
